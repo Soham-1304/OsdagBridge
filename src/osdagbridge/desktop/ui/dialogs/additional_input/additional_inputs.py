@@ -15,7 +15,7 @@ from PySide6.QtGui import QDoubleValidator, QIntValidator
 from osdagbridge.core.bridge_types.plate_girder.validator import BridgeInputValidator
 from osdagbridge.core.utils.common import *
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style, create_action_button_bar
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style, create_action_button_bar
 from osdagbridge.desktop.ui.dialogs.custom_messagebox import CustomMessageBox, MessageBoxType
 from osdagbridge.desktop.ui.dialogs.additional_input.tabs.loading.typical_section.typical_section_details import TypicalSectionDetailsTab
 from osdagbridge.desktop.ui.dialogs.tabs.section_properties_tab import SectionPropertiesTab
@@ -721,11 +721,12 @@ class AdditionalInputs(QDialog):
         widget = None
 
         if field_type == "combo":
-            widget = QComboBox()
+            widget = PopupSizingComboBox()
             choices = field_def.get("choices") or []
 
             for choice in choices:
                 widget.addItem(choice)
+            apply_field_style(widget)
 
             # apply enabled/disabled states if specified
             enabled_list = field_def.get("enabled_choices")

@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox
+
 logger = logging.getLogger(__name__)
 
 class Girder2DPlotsWidget(QWidget):
@@ -71,7 +73,7 @@ class Girder2DPlotsWidget(QWidget):
 
         # Combo Box 
         def create_combo_box():
-            combo = QComboBox()
+            combo = PopupSizingComboBox()
             combo.setStyleSheet("""
                 QComboBox {
                     border: 1px solid #CCCCCC;

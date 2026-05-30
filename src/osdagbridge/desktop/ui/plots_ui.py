@@ -31,6 +31,7 @@ from osdagbridge.core.bridge_types.plate_girder.plots_widget import (
     build_figure_bmd_contour,
     FORCE_MAP,
 )
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 
 # =========================================================
 # THE RAM-ONLY FRONTEND
@@ -162,16 +163,18 @@ class PlotWidget(QWidget):
 
         # ---------- LOADCASE ----------
         top.addWidget(QLabel("Load case:"))
-        self.combo = QComboBox()
+        self.combo = PopupSizingComboBox()
         self.combo.currentTextChanged.connect(self.update_plot)
+        apply_field_style(self.combo)
         top.addWidget(self.combo)
 
         # ---------- FORCE ----------
         top.addWidget(QLabel("Force:"))
-        self.force_combo = QComboBox()
+        self.force_combo = PopupSizingComboBox()
         self.force_combo.addItems(list(FORCE_MAP.keys()))
         self.force_combo.setCurrentText("Vy")
         self.force_combo.currentTextChanged.connect(self.update_plot)
+        apply_field_style(self.force_combo)
         top.addWidget(self.force_combo)
 
         # ---------- CONTOUR CHECKBOX ----------

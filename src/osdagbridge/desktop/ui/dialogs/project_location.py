@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
 from osdagbridge.desktop.ui.utils.custom_widgets import CustomRadioButton
 from osdagbridge.desktop.ui.dialogs.custom_messagebox import CustomMessageBox, MessageBoxType
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 from osdagbridge.core.bridge_types.plate_girder.ui_fields_project_location import (
     get_state_list,
     get_station_list,
@@ -23,81 +24,9 @@ LAST_WEATHER_DATA = None  # Looked-up or persisted weather data (wind, seismic, 
 LAST_LOCATION_METHOD = None  # "location_name" or "map"
 LAST_LOCATION_DATA = None  # {"state": ..., "district": ...} or {"latitude": ..., "longitude": ...}
 
-class NoScrollComboBox(QComboBox):
+class NoScrollComboBox(PopupSizingComboBox):
     def wheelEvent(self, event):
         event.ignore()  # Prevent changing selection on scroll
-
-def apply_field_style(widget):
-    widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-    widget.setMinimumHeight(28)
-    
-    if isinstance(widget, QComboBox):
-        style = """
-            QComboBox{
-                padding: 1px 7px;
-                border: 1px solid black;
-                border-radius: 5px;
-                background-color: white;
-                color: black;
-            }
-            QComboBox::drop-down{
-                subcontrol-origin: padding;
-                subcontrol-position: top right;
-                border-left: 0px;
-            }
-            QComboBox::down-arrow{
-                image: url(:/vectors/arrow_down_light.svg);
-                width: 20px;
-                height: 20px;
-                margin-right: 8px;
-            }
-            QComboBox::down-arrow:on {
-                image: url(:/vectors/arrow_up_light.svg);
-                width: 20px;
-                height: 20px;
-                margin-right: 8px;
-            }
-            QComboBox QAbstractItemView{
-                background-color: white;
-                border: 1px solid black;
-                outline: none;
-            }
-            QComboBox QAbstractItemView::item{
-                color: black;
-                background-color: white;
-                border: none;
-                border: 1px solid white;
-                border-radius: 0;
-                padding: 2px;
-            }
-            QComboBox QAbstractItemView::item:hover{
-                border: 1px solid #90AF13;
-                background-color: #90AF13;
-                color: black;
-            }
-            QComboBox QAbstractItemView::item:selected{
-                background-color: #90AF13;
-                color: black;
-                border: 1px solid #90AF13;
-            }
-            QComboBox QAbstractItemView::item:selected:hover{
-                background-color: #90AF13;
-                color: black;
-                border: 1px solid #94b816;
-            } 
-        """
-        widget.setStyleSheet(style)
-    elif isinstance(widget, QLineEdit):
-        widget.setStyleSheet("""
-            QLineEdit {
-                padding: 1px 7px;
-                border: 1px solid #070707;
-                border-radius: 6px;
-                background-color: white;
-                color: #000000;
-                font-weight: normal;
-            }
-        """)
 
 
 class ProjectLocationDialog(QDialog):
@@ -389,6 +318,7 @@ class ProjectLocationDialog(QDialog):
 
         self.zone_overlay_combo = NoScrollComboBox()
         self.zone_overlay_combo.addItems(["None", "Seismic Zone", "Wind Zone"])
+        apply_field_style(self.zone_overlay_combo)
 
         controls_row = QHBoxLayout()
         controls_row.setContentsMargins(8, 4, 8, 0)
@@ -721,6 +651,7 @@ class ProjectLocationDialog(QDialog):
                         districts = get_station_list(state, include_placeholder=True)
                         self.district_combo.clear()
                         self.district_combo.addItems(districts)
+                        apply_field_style(self.district_combo)
                 
                 if district:
                     idx = self.district_combo.findText(district)
@@ -880,6 +811,7 @@ class ProjectLocationDialog(QDialog):
         # Reset district to placeholder
         self.district_combo.clear()
         self.district_combo.addItems(["Select District"])
+        apply_field_style(self.district_combo)
         
         self.state_combo.blockSignals(False)
         self.district_combo.blockSignals(False)

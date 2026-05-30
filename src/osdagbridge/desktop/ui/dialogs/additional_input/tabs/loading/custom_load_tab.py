@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 from osdagbridge.desktop.ui.dialogs.custom_messagebox import CustomMessageBox, MessageBoxType
 from osdagbridge.core.bridge_types.plate_girder.ui_fields_additional_input import CUSTOM_LOAD_TAB_SCHEMA
 
@@ -110,7 +110,7 @@ class CustomLoadTab(QWidget):
         lbl.setStyleSheet(label_style)
         lbl.setFixedWidth(label_width)
         
-        owner.custom_load_case_combo = QComboBox()
+        owner.custom_load_case_combo = PopupSizingComboBox()
         owner.custom_load_case_combo.addItems(schema["load_case_choices"])
         owner.custom_load_case_combo.setFixedWidth(field_width)
         apply_field_style(owner.custom_load_case_combo)
@@ -137,7 +137,7 @@ class CustomLoadTab(QWidget):
         lbl.setStyleSheet(label_style)
         lbl.setFixedWidth(label_width)
         
-        owner.custom_load_type_combo = QComboBox()
+        owner.custom_load_type_combo = PopupSizingComboBox()
         owner.custom_load_type_combo.addItems(schema["load_type_choices"])
         owner.custom_load_type_combo.setFixedWidth(field_width * 2 + 8)
         apply_field_style(owner.custom_load_type_combo)

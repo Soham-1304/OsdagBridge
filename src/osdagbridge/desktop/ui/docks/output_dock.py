@@ -35,6 +35,7 @@ from osdagbridge.core.utils.common import (
     KEY_UTIL_LONG_TRANS_SHEAR, KEY_UTIL_FATIGUE, KEY_UTIL_STRESS_LIMITATION,
     KEY_UTIL_DEFLECTION_CRACK,
 )
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox
 from osdagbridge.desktop.ui.utils.custom_buttons import DockCustomButton
 from osdagbridge.desktop.ui.docks.dock_utils import apply_field_style
 from osdagbridge.desktop.ui.utils.custom_widgets import RichCheckBox, PercentBarWidget, CustomRadioButton
@@ -64,7 +65,7 @@ LABEL_STYLE       = "QLabel { color:#000; font-size:12px; background:transparent
 SMALL_LABEL_STYLE = "QLabel { color:#333; font-size:10px; font-weight:normal; background:transparent; }"
 
 
-class NoScrollComboBox(QComboBox):
+class NoScrollComboBox(PopupSizingComboBox):
     def wheelEvent(self, event):
         event.ignore()
 

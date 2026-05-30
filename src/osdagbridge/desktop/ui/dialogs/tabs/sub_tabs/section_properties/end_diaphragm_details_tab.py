@@ -20,7 +20,7 @@ from PySide6.QtGui import QDoubleValidator, QIntValidator
 
 from osdagbridge.core.utils.common import *
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 from osdagbridge.desktop.ui.utils.rolled_section_preview import RolledSectionPreview
 from osdagbridge.desktop.ui.widgets.section_viewer import SectionCatalog, SectionPreviewWidget
 from osdagbridge.desktop.ui.widgets.placeholder_section_preview import PlaceholderSectionPreviewWidget
@@ -1037,7 +1037,7 @@ class EndDiaphragmDetailsTab(QWidget):
             bounds_button.setEnabled(not show_line_edit)
 
     def _attach_thickness_value_dropdown(self, wrapper: QWidget, value_input: QLineEdit) -> QComboBox:
-        combo = QComboBox()
+        combo = PopupSizingComboBox()
         combo.addItems(SAIL_APPROVED_THICKNESS_VALUES)
         apply_field_style(combo)
         combo.setVisible(False)
@@ -1213,7 +1213,7 @@ class EndDiaphragmDetailsTab(QWidget):
         layout.setColumnStretch(0, 0)
         layout.setColumnStretch(1, 1)
 
-        girders_combo = QComboBox()
+        girders_combo = PopupSizingComboBox()
         # Populated from Girder Details when bound. (No All option.)
         self._configure_combo_box(girders_combo)
         apply_field_style(girders_combo)
@@ -1224,7 +1224,7 @@ class EndDiaphragmDetailsTab(QWidget):
 
         self._select_girders_combos.append(girders_combo)
 
-        member_combo = QComboBox()
+        member_combo = PopupSizingComboBox()
         # Populated from Girder Details when bound. (No Custom option.)
         self._configure_combo_box(member_combo)
         # Member IDs are software-generated and should not be edited.
@@ -1609,7 +1609,7 @@ class EndDiaphragmDetailsTab(QWidget):
         if not self._rolled_preview:
             return
 
-        designation = getattr(self, "rolled_is_section_combo", QComboBox()).currentText()
+        designation = getattr(self, "rolled_is_section_combo", PopupSizingComboBox()).currentText()
         beam = girder_properties.get_beam_profile(designation)
         outline = girder_properties.get_rolled_section(designation) if beam is None else None
         has_data = bool(beam or outline)
@@ -1861,7 +1861,7 @@ class EndDiaphragmDetailsTab(QWidget):
         grid.setColumnStretch(0, 0)
         grid.setColumnStretch(1, 1)
 
-        design_combo = QComboBox()
+        design_combo = PopupSizingComboBox()
         design_combo.addItems(self._end_schema_choices(VIEW_CROSS_BRACING, "design", list(VALUES_GIRDER_DESIGN_MODE)))
         design_combo.setCurrentText(self._end_schema_default(VIEW_CROSS_BRACING, "design", DESIGN_OPTIMIZED))
         self._configure_combo_box(design_combo)
@@ -1871,14 +1871,14 @@ class EndDiaphragmDetailsTab(QWidget):
         self.cross_design_combo = design_combo
         self._bind_end_schema_widget(VIEW_CROSS_BRACING, "design", design_combo)
 
-        type_selector = QComboBox()
+        type_selector = PopupSizingComboBox()
         type_selector.addItems(self._end_schema_choices(VIEW_CROSS_BRACING, "type_selector", list(VALUES_END_DIAPHRAGM_TYPE)))
         type_selector.setCurrentText(self._end_schema_default(VIEW_CROSS_BRACING, "type_selector", VIEW_CROSS_BRACING))
         self._configure_combo_box(type_selector)
         apply_field_style(type_selector)
         row = self._add_grid_row(grid, row, "Type:", type_selector)
 
-        bracing_combo = QComboBox()
+        bracing_combo = PopupSizingComboBox()
         bracing_combo.addItems(self._end_schema_choices(VIEW_CROSS_BRACING, "bracing_type", ["K-Bracing", "X-Bracing"]))
         self._configure_combo_box(bracing_combo)
         apply_field_style(bracing_combo)
@@ -1898,7 +1898,7 @@ class EndDiaphragmDetailsTab(QWidget):
             ],
         )
 
-        bracing_section_type = QComboBox()
+        bracing_section_type = PopupSizingComboBox()
         bracing_section_type.addItems(section_type_options)
         self._configure_combo_box(bracing_section_type)
         apply_field_style(bracing_section_type)
@@ -1906,7 +1906,7 @@ class EndDiaphragmDetailsTab(QWidget):
         self.cross_bracing_section_type_combo = bracing_section_type
         self._bind_end_schema_widget(VIEW_CROSS_BRACING, "bracing_section_type", bracing_section_type)
 
-        bracing_section_size = QComboBox()
+        bracing_section_size = PopupSizingComboBox()
         self._configure_combo_box(bracing_section_size)
         apply_field_style(bracing_section_size)
         row = self._add_grid_row(grid, row, "Bracing Section Designation:", bracing_section_size)
@@ -1919,7 +1919,7 @@ class EndDiaphragmDetailsTab(QWidget):
         row = self._add_grid_row(grid, row, "Top Chord:", self.cross_top_chord_checkbox)
         self._bind_end_schema_widget(VIEW_CROSS_BRACING, "top_chord_enabled", self.cross_top_chord_checkbox)
 
-        top_chord_type = QComboBox()
+        top_chord_type = PopupSizingComboBox()
         top_chord_type.addItems(section_type_options)
         self._configure_combo_box(top_chord_type)
         apply_field_style(top_chord_type)
@@ -1927,7 +1927,7 @@ class EndDiaphragmDetailsTab(QWidget):
         self.cross_top_chord_type_combo = top_chord_type
         self._bind_end_schema_widget(VIEW_CROSS_BRACING, "top_chord_type", top_chord_type)
 
-        top_chord_size = QComboBox()
+        top_chord_size = PopupSizingComboBox()
         self._configure_combo_box(top_chord_size)
         apply_field_style(top_chord_size)
         row = self._add_grid_row(grid, row, "Top Chord Section Designation:", top_chord_size)
@@ -1940,7 +1940,7 @@ class EndDiaphragmDetailsTab(QWidget):
         row = self._add_grid_row(grid, row, "Bottom Chord:", self.cross_bottom_chord_checkbox)
         self._bind_end_schema_widget(VIEW_CROSS_BRACING, "bottom_chord_enabled", self.cross_bottom_chord_checkbox)
 
-        bottom_chord_type = QComboBox()
+        bottom_chord_type = PopupSizingComboBox()
         bottom_chord_type.addItems(section_type_options)
         self._configure_combo_box(bottom_chord_type)
         apply_field_style(bottom_chord_type)
@@ -1948,7 +1948,7 @@ class EndDiaphragmDetailsTab(QWidget):
         self.cross_bottom_chord_type_combo = bottom_chord_type
         self._bind_end_schema_widget(VIEW_CROSS_BRACING, "bottom_chord_type", bottom_chord_type)
 
-        bottom_chord_size = QComboBox()
+        bottom_chord_size = PopupSizingComboBox()
         self._configure_combo_box(bottom_chord_size)
         apply_field_style(bottom_chord_size)
         row = self._add_grid_row(grid, row, "Bottom Chord Section Designation:", bottom_chord_size)
@@ -2053,7 +2053,7 @@ class EndDiaphragmDetailsTab(QWidget):
         grid.setColumnStretch(0, 0)
         grid.setColumnStretch(1, 1)
 
-        design_combo = QComboBox()
+        design_combo = PopupSizingComboBox()
         design_combo.addItems(self._end_schema_choices(VIEW_ROLLED_BEAM, "design", list(VALUES_GIRDER_DESIGN_MODE)))
         design_combo.setCurrentText(self._end_schema_default(VIEW_ROLLED_BEAM, "design", DESIGN_OPTIMIZED))
         self.rolled_design_combo = design_combo
@@ -2063,14 +2063,14 @@ class EndDiaphragmDetailsTab(QWidget):
         design_combo.setVisible(False)
         row = 0
 
-        type_selector = QComboBox()
+        type_selector = PopupSizingComboBox()
         type_selector.addItems(self._end_schema_choices(VIEW_ROLLED_BEAM, "type_selector", list(VALUES_END_DIAPHRAGM_TYPE)))
         type_selector.setCurrentText(self._end_schema_default(VIEW_ROLLED_BEAM, "type_selector", VIEW_ROLLED_BEAM))
         self._configure_combo_box(type_selector)
         apply_field_style(type_selector)
         row = self._add_grid_row(grid, row, "Type:", type_selector)
 
-        is_section_combo = QComboBox()
+        is_section_combo = PopupSizingComboBox()
         self._configure_combo_box(is_section_combo)
         apply_field_style(is_section_combo)
         self._populate_rolled_sections(is_section_combo)
@@ -2153,7 +2153,7 @@ class EndDiaphragmDetailsTab(QWidget):
         grid.setColumnStretch(0, 0)
         grid.setColumnStretch(1, 1)
 
-        design_combo = QComboBox()
+        design_combo = PopupSizingComboBox()
         design_combo.addItems(self._end_schema_choices(VIEW_WELDED_BEAM, "design", list(VALUES_GIRDER_DESIGN_MODE)))
         design_combo.setCurrentText(self._end_schema_default(VIEW_WELDED_BEAM, "design", DESIGN_OPTIMIZED))
         self.welded_design_combo = design_combo
@@ -2163,14 +2163,14 @@ class EndDiaphragmDetailsTab(QWidget):
         design_combo.setVisible(False)
         row = 0
 
-        type_selector = QComboBox()
+        type_selector = PopupSizingComboBox()
         type_selector.addItems(self._end_schema_choices(VIEW_WELDED_BEAM, "type_selector", list(VALUES_END_DIAPHRAGM_TYPE)))
         type_selector.setCurrentText(self._end_schema_default(VIEW_WELDED_BEAM, "type_selector", VIEW_WELDED_BEAM))
         self._configure_combo_box(type_selector)
         apply_field_style(type_selector)
         row = self._add_grid_row(grid, row, "Type:", type_selector)
 
-        symmetry_combo = QComboBox()
+        symmetry_combo = PopupSizingComboBox()
         symmetry_combo.addItems(self._end_schema_choices(VIEW_WELDED_BEAM, "symmetry", list(VALUES_GIRDER_SYMMETRY)))
         self._configure_combo_box(symmetry_combo)
         apply_field_style(symmetry_combo)
@@ -2183,7 +2183,7 @@ class EndDiaphragmDetailsTab(QWidget):
         self.welded_total_depth_widget = total_depth_widget
         self.welded_total_depth_bounds_button = total_depth_bounds_button
 
-        web_thick_combo = QComboBox()
+        web_thick_combo = PopupSizingComboBox()
         web_thick_combo.addItems(VALUES_PROFILE_SCOPE)
         self._configure_combo_box(web_thick_combo)
         apply_field_style(web_thick_combo)
@@ -2209,7 +2209,7 @@ class EndDiaphragmDetailsTab(QWidget):
         self.welded_top_width_widget = top_width_widget
         self.welded_top_width_bounds_button = top_width_bounds_button
 
-        top_thickness_combo = QComboBox()
+        top_thickness_combo = PopupSizingComboBox()
         top_thickness_combo.addItems(VALUES_PROFILE_SCOPE)
         self._configure_combo_box(top_thickness_combo)
         apply_field_style(top_thickness_combo)
@@ -2235,7 +2235,7 @@ class EndDiaphragmDetailsTab(QWidget):
         self.welded_bottom_width_widget = bottom_width_widget
         self.welded_bottom_width_bounds_button = bottom_width_bounds_button
 
-        bottom_thickness_combo = QComboBox()
+        bottom_thickness_combo = PopupSizingComboBox()
         bottom_thickness_combo.addItems(VALUES_PROFILE_SCOPE)
         self._configure_combo_box(bottom_thickness_combo)
         apply_field_style(bottom_thickness_combo)

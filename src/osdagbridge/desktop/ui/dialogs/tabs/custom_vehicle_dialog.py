@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
 
 class CustomVehicleDialog(QDialog):
@@ -129,7 +129,7 @@ class CustomVehicleDialog(QDialog):
         name_row.addSpacing(20)
         type_label = QLabel("Vehicle Type:")
         type_label.setStyleSheet("font-weight: 600;")
-        self.vehicle_type_combo = QComboBox()
+        self.vehicle_type_combo = PopupSizingComboBox()
         self.vehicle_type_combo.addItems(["Wheeled", "Tracked", "Bogie"])
         self.vehicle_type_combo.setFixedWidth(120)
         apply_field_style(self.vehicle_type_combo)

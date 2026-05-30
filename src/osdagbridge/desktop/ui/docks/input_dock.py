@@ -24,6 +24,7 @@ from osdagbridge.core.utils.common import *
 from osdagbridge.desktop.ui.utils.custom_buttons import DockCustomButton
 from osdagbridge.desktop.ui.dialogs.project_location import ProjectLocationDialog
 from osdagbridge.desktop.ui.docks.dock_utils import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox
 from osdagbridge.desktop.ui.dialogs.material_properties import (
     MaterialPropertiesDialog, sync_custom_materials_across_steel_members,
 )
@@ -51,7 +52,7 @@ ACTION_BTN_STYLE = (
 LABEL_STYLE = "QLabel { color:#000; font-size:12px; background:transparent; }"
 
 
-class NoScrollComboBox(QComboBox):
+class NoScrollComboBox(PopupSizingComboBox):
     def wheelEvent(self, event):
         event.ignore()
 

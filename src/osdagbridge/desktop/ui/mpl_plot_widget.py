@@ -18,6 +18,7 @@ from PySide6.QtGui import QDoubleValidator
 
 from navcube import NavCubeOverlay, NavCubeStyle
 from osdagbridge.desktop.ui.utils.mpl_widget_navcube_sync import MatplotlibNavCubeSync
+from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
 
 from osdagbridge.core.bridge_types.plate_girder.plot_generator import (
     build_figure_sfd,
@@ -433,8 +434,7 @@ class MplPlotWidget(QWidget):
             combo_lc.clear()
             combo_lc.addItems(self._loadcases)
             combo_lc.blockSignals(False)
-            combo_lc.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
-            combo_lc.setMinimumContentsLength(12)
+            apply_field_style(combo_lc)
             combo_lc.currentTextChanged.connect(self.update_plot)
 
         # 2. Connect Force Radios

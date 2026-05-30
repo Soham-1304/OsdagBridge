@@ -15,7 +15,7 @@ from osdagbridge.core.utils.common import *
 from osdagbridge.core.bridge_types.plate_girder.ui_fields_additional_input import CROSS_BRACING_DETAILS_SCHEMA
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
 from osdagbridge.desktop.ui.utils.cad_palette import CAD_DIMENSION
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 from osdagbridge.desktop.ui.widgets.section_viewer import SectionPreviewWidget, SectionCatalog
 from osdagbridge.desktop.ui.widgets.placeholder_section_preview import PlaceholderSectionPreviewWidget
 
@@ -201,7 +201,7 @@ class _CrossBracingDetailsSchemaBuilder:
         field_type = str(field_def.get("type") or "line").strip().lower()
 
         if field_type in {"combo", "combo_dynamic"}:
-            widget = QComboBox()
+            widget = PopupSizingComboBox()
             for choice in field_def.get("choices") or []:
                 widget.addItem(str(choice))
             default = field_def.get("default")
@@ -362,7 +362,7 @@ class CrossBracingDetailsTab(QWidget):
         self._build_overview_inputs_from_schema(selection_layout)
         self._bind_widgets_from_schema("overview")
 
-        self.member_id_combo = QComboBox()
+        self.member_id_combo = PopupSizingComboBox()
         # Populated from Girder Details when bound. (No Custom option.)
         self._configure_combo_box(self.member_id_combo)
         # Member IDs are software-generated and must not be typed/edited.

@@ -12,7 +12,6 @@ from PySide6.QtGui import QDoubleValidator, QColor, QPalette, QPen, QPainter, QI
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
-    QComboBox,
     QDialog,
     QFrame,
     QGridLayout,
@@ -23,6 +22,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QListWidget,
+    QComboBox,
     QScrollArea,
     QSizePolicy,
     QStyledItemDelegate,
@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
 )
 
 from osdagbridge.core.bridge_types.plate_girder.ui_fields_additional_input import GIRDER_DETAILS_SCHEMA
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
 from osdagbridge.desktop.ui.utils.rolled_section_preview import RolledSectionPreview
 
@@ -248,7 +248,7 @@ class _GirderDetailsSchemaBuilder:
         field_type = str(field_def.get("type") or "line").strip().lower()
 
         if field_type in {"combo", "combo_dynamic"}:
-            widget = QComboBox()
+            widget = PopupSizingComboBox()
             for choice in field_def.get("choices") or []:
                 widget.addItem(str(choice))
             default = field_def.get("default")
@@ -256,7 +256,7 @@ class _GirderDetailsSchemaBuilder:
                 widget.setCurrentText(str(default))
 
         elif field_type == "mode_line":
-            mode_combo = QComboBox()
+            mode_combo = PopupSizingComboBox()
             for choice in field_def.get("mode_choices") or []:
                 mode_combo.addItem(str(choice))
             default_mode = field_def.get("default_mode")
@@ -2545,7 +2545,7 @@ class GirderDetailsTab(QWidget):
         inputs_grid.setColumnStretch(1, 1)
 
         # Member ID (segment selector) - mirrors reference UI.
-        self.member_id_combo = QComboBox()
+        self.member_id_combo = PopupSizingComboBox()
         apply_field_style(self.member_id_combo)
         self._set_field_width(self.member_id_combo)
         self.member_id_combo.currentIndexChanged.connect(self._on_member_id_combo_changed)
@@ -2714,7 +2714,7 @@ class GirderDetailsTab(QWidget):
 
     def _attach_thickness_value_dropdown(self, wrapper: QWidget, value_input: QLineEdit, field_key: str) -> QComboBox:
         """Attach hidden schema-backed thickness dropdown used in custom mode."""
-        combo = QComboBox()
+        combo = PopupSizingComboBox()
         combo.addItems(self._thickness_values)
         apply_field_style(combo)
         combo.setVisible(False)

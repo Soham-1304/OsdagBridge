@@ -31,7 +31,7 @@ from osdagbridge.core.utils.common import (
     SAIL_APPROVED_THICKNESS_VALUES,
     STIFFENER_DETAILS_DEFAULTS,
 )
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 
 _STIFFENER_DEFAULTS = dict(STIFFENER_DETAILS_DEFAULTS)
 MIN_BEARING_SPACING_MM = int(_STIFFENER_DEFAULTS.get("min_bearing_spacing_mm", MIN_BEARING_STIFFENER_SPACING_MM))
@@ -518,7 +518,7 @@ class StiffenerDetailsTab(QWidget):
         girder_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #3a3a3a; border: none;")
         girder_row.addWidget(girder_label)
 
-        self.girder_member_combo = QComboBox()
+        self.girder_member_combo = PopupSizingComboBox()
         apply_field_style(self.girder_member_combo)
         self.girder_member_combo.setFixedWidth(combo_width)
         self.girder_member_combo.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -790,7 +790,7 @@ class StiffenerDetailsTab(QWidget):
 
         widget: QWidget
         if field_type in {"combo", "combo_dynamic"}:
-            combo = QComboBox()
+            combo = PopupSizingComboBox()
             for choice in field_def.get("choices") or []:
                 combo.addItem(str(choice))
             default = field_def.get("default")
@@ -805,7 +805,7 @@ class StiffenerDetailsTab(QWidget):
             widget = combo
 
         elif field_type == "mode_value":
-            mode_combo = QComboBox()
+            mode_combo = PopupSizingComboBox()
             for choice in field_def.get("mode_choices") or []:
                 mode_combo.addItem(str(choice))
             default_mode = field_def.get("default_mode")
@@ -815,7 +815,7 @@ class StiffenerDetailsTab(QWidget):
             mode_combo.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             self._set_field_width(mode_combo, combo_width)
 
-            value_combo = QComboBox()
+            value_combo = PopupSizingComboBox()
             value_combo.addItems(self._thickness_values)
             apply_field_style(value_combo)
             value_combo.setVisible(False)

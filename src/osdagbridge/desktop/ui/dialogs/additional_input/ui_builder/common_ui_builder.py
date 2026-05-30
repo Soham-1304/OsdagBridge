@@ -1,11 +1,6 @@
 """Shared schema-driven sub-tab builder for Typical Section inner tabs."""
 from __future__ import annotations
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QGridLayout, QLabel, QComboBox, QLineEdit,
-    QTableWidget, QHeaderView, QSizePolicy, QCheckBox, QGroupBox,
-    QHBoxLayout, QFrame, QPushButton, QScrollArea
-)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QDoubleValidator, QIntValidator
 
@@ -16,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from osdagbridge.core.utils.common import *
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 
 ADDITIONAL_INPUTS_SCROLL_STYLE = """
     QScrollArea { background:transparent; padding:0px 5px; border:none}
@@ -344,11 +340,10 @@ class UIBuilder(QWidget):
 
         # ── Build widget ───────────────────────────────────────────────────
         if ftype == TYPE_COMBOBOX:
-            field = QComboBox()
+            field = PopupSizingComboBox()
             choices = field_def.get("choices") or []
             field.addItems(choices)
-            field.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-            field.setMinimumContentsLength(max((len(c) for c in choices), default=0))
+            apply_field_style(field)
 
             # enabled_choices — disable others with grey + forbidden cursor
             enabled_choices = field_def.get("enabled_choices")
@@ -482,11 +477,7 @@ class UIBuilder(QWidget):
         else:
             field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        if hasattr(owner, "style_input_field"):
-            owner.style_input_field(field)
-        else:
-            from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
-            apply_field_style(field)
+        apply_field_style(field)
 
         tooltip_attr = field_def.get("tooltip")
         if tooltip_attr and hasattr(owner, tooltip_attr):
@@ -571,12 +562,11 @@ class UIBuilder(QWidget):
         label.setMinimumWidth(label_width)
         header_row.addWidget(label, 0, Qt.AlignVCenter)
 
-        combo = QComboBox()
+        combo = PopupSizingComboBox()
         combo.setObjectName(count_id)
         combo.addItems(field_def.get("count_choices") or [])
         combo.setFixedWidth(80)
-        if hasattr(owner, "style_input_field"):
-            owner.style_input_field(combo)
+        apply_field_style(combo)
         header_row.addWidget(combo, 0, Qt.AlignVCenter)
         header_row.addStretch()
         layout.addLayout(header_row)
@@ -740,25 +730,17 @@ class UIBuilder(QWidget):
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(8)
 
-        mode_combo = QComboBox()
+        mode_combo = PopupSizingComboBox()
         mode_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         mode_combo.addItems(choices)
         mode_combo.setObjectName(field_id + ".mode")
-        if hasattr(owner, "style_input_field"):
-            owner.style_input_field(mode_combo)
-        else:
-            from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
-            apply_field_style(mode_combo)
+        apply_field_style(mode_combo)
 
         value_input = QLineEdit()
         value_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         value_input.setObjectName(field_id + ".value")
         value_input.setEnabled(False)
-        if hasattr(owner, "style_input_field"):
-            owner.style_input_field(value_input)
-        else:
-            from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
-            apply_field_style(value_input)
+        apply_field_style(value_input)
 
         if bind_mode:
             setattr(owner, bind_mode, mode_combo)

@@ -1,7 +1,7 @@
 """Shared helpers for the Additional Inputs dialog and its tabs."""
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QStandardItemModel
+from PySide6.QtGui import QFontMetrics, QStandardItemModel
 from PySide6.QtWidgets import (
     QComboBox,
     QLineEdit,
@@ -88,6 +88,32 @@ class CheckableComboBox(QComboBox):
         return selected
 
 
+class PopupSizingComboBox(QComboBox):
+    """ComboBox that expands its popup to fit content on open."""
+
+    def showPopup(self):
+        view = self.view()
+        if view is not None:
+            metrics = QFontMetrics(view.font())
+            widest_text = ""
+            for index in range(self.count()):
+                text = self.itemText(index)
+                if metrics.horizontalAdvance(text) > metrics.horizontalAdvance(widest_text):
+                    widest_text = text
+
+            char_width = metrics.averageCharWidth()
+            text_width = max(
+                metrics.horizontalAdvance(widest_text),
+                metrics.boundingRect(widest_text).width(),
+            )
+            popup_width = max(self.width(), int(text_width + char_width * max(len(widest_text) // 3, 6)))
+            view.setMinimumWidth(popup_width)
+            try:
+                view.setTextElideMode(Qt.TextElideMode.ElideNone)
+            except Exception:
+                pass
+        super().showPopup()
+
 
 def get_combobox_style():
     """Return the common stylesheet for dropdowns with the SVG icon from resources."""
@@ -151,6 +177,14 @@ def get_combobox_style():
     """
 
 
+def configure_combobox(widget, choices=None):
+    """Apply the shared ComboBox style and sizing policy."""
+    widget.setMinimumHeight(28)
+    widget.setStyleSheet(get_combobox_style())
+    widget.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
+    return widget
+
+
 def get_lineedit_style():
     """Return the shared stylesheet for line edits in the section inputs."""
     return """
@@ -178,10 +212,11 @@ def get_lineedit_style():
 
 def apply_field_style(widget):
     """Apply the appropriate style to combo boxes and line edits."""
-    widget.setMinimumHeight(28)
     if isinstance(widget, QComboBox):
-        widget.setStyleSheet(get_combobox_style())
+        items = [widget.itemText(i) for i in range(widget.count())]
+        configure_combobox(widget, items)
     elif isinstance(widget, QLineEdit):
+        widget.setMinimumHeight(28)
         widget.setStyleSheet(get_lineedit_style())
 
 
@@ -234,14 +269,12 @@ def create_action_button_bar(parent=None):
             background-color: #e0e0e0;
         }
     """)
-
     layout = QHBoxLayout(frame)
     layout.setContentsMargins(22, 10, 22, 10)
     layout.setSpacing(12)
-    layout.addStretch()
-
     defaults_button = QPushButton("Defaults", frame)
     save_button = QPushButton("Save", frame)
+    layout.addStretch()
     layout.addWidget(defaults_button)
     layout.addWidget(save_button)
     layout.addStretch()

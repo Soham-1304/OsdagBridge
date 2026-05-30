@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtWidgets import QHeaderView
 
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
 from osdagbridge.desktop.ui.dialogs.custom_messagebox import CustomMessageBox, MessageBoxType
 
@@ -109,7 +109,7 @@ class LoadCombinationDialog(QDialog):
 
         load_case_lbl = QLabel("Load Case:")
         load_case_lbl.setStyleSheet(_label_style)
-        self.load_case_combo = QComboBox()
+        self.load_case_combo = PopupSizingComboBox()
 
         base_items   = ["DL", "DW", "SIDL", "LL", "WL", "EL", "TL"]
         custom_items = []

@@ -13,7 +13,7 @@ from PySide6.QtGui import QDoubleValidator, QIntValidator
 
 from osdagbridge.core.utils.common import *
 from osdagbridge.desktop.ui.utils.custom_titlebar import CustomTitleBar
-from osdagbridge.desktop.ui.dialogs.tabs.common import apply_field_style
+from osdagbridge.desktop.ui.dialogs.tabs.common import PopupSizingComboBox, apply_field_style
 
 class OptimizableField(QWidget):
     """Widget that allows selection between Optimized/Custom/All modes with input field"""
@@ -24,7 +24,7 @@ class OptimizableField(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(8)
 
-        self.mode_combo = QComboBox()
+        self.mode_combo = PopupSizingComboBox()
         self.mode_combo.addItems(VALUES_OPTIMIZATION_MODE)
         self.mode_combo.setMinimumWidth(140)
         self.mode_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
