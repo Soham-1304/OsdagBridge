@@ -180,11 +180,10 @@ def get_combobox_style():
 def configure_combobox(widget, choices=None):
     """Apply the shared ComboBox style and sizing policy."""
     widget.setMinimumHeight(28)
+    # Allow the closed combobox to shrink horizontally to prevent clipping the dock.
+    widget.setMinimumWidth(60)
+    widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
     widget.setStyleSheet(get_combobox_style())
-    # Do NOT auto-adjust the closed combobox width here — that causes
-    # the control to expand and shift surrounding layouts. Popup sizing
-    # is handled in `PopupSizingComboBox.showPopup()` so the dropdown
-    # can grow to fit contents without changing the closed widget width.
     return widget
 
 
