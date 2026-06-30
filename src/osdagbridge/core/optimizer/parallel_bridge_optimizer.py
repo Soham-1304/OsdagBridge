@@ -6,14 +6,17 @@ superstructure, built on the generic engine in ``parallel_optimizer.py``.
 
 Design vector
 -------------
-    x = [n, s, t_slab, D, bf, tf, tw]
-        n       number of girders                (count)
-        s       girder spacing                   (m)
+    x = [s, t_slab, D, bf, tf, tw]
+        s       girder spacing                   (m)   [2.0, 4.0]
         t_slab  deck-slab thickness              (mm)
         D       girder overall depth             (mm)
         bf      flange width (symmetric I)       (mm)
         tf      flange thickness (symmetric I)   (mm)
         tw      web thickness                    (mm)
+
+    Note: ``n`` (number of girders) is *derived* from ``s``:
+        n = round(width / s),  then spacing is refined as  s = width / n
+        so n is not an independent gene in the DE search space.
 
 How it differs from the sequential ``bridge_optimizer.py``
 ---------------------------------------------------------
@@ -164,25 +167,25 @@ def normalize_candidate(x: np.ndarray, cfg: OptiConfig) -> Candidate:
     """
     Snap a raw DE vector onto a valid, manufacturable section + layout.
 
-    Mirrors the snapping rules of the sequential optimiser but is pure: it reads
-    only ``x`` and ``cfg`` (no globals), so it is safe to call inside a worker.
+    ``s`` (girder spacing) is the primary layout variable, clamped to [2.0, 4.0] m.
+    ``n`` (number of girders) is *derived* from ``s`` so that:
+        n = round(width / s),  then  s = width / n  and  overhang = s / 2
+    This ensures the bridge layout solver's convention is always satisfied:
+        overall_width = n * spacing,  overhang = spacing / 2
     """
-    n, s, t_slab, D, bf, tf, tw = (
-        x[0], x[1], x[2], x[3], x[4], x[5], x[6]
+    s, t_slab, D, bf, tf, tw = (
+        x[0], x[1], x[2], x[3], x[4], x[5]
     )
 
     span  = cfg.span_m
     width = cfg.deck_width_m
 
     # Layout ----------------------------------------------------------------
-    # Spacing is NOT an independent variable: for a fixed overall deck width the
-    # girders are equally spaced, so spacing is fully determined by the girder
-    # count. This matches the bridge layout solver's convention
-    #   overall_width = n * spacing,  overhang = spacing / 2
-    # (e.g. 8.4 m / 4 girders => 2.1 m spacing, 1.05 m overhang). The raw `s`
-    # gene is intentionally ignored here so the CAD geometry is always physical.
-    n        = int(max(2, round(n)))
-    s        = width / n
+    # Spacing is the PRIMARY variable. Clamp to practical limits [2.0, 4.0] m,
+    # then derive the integer girder count and re-compute the exact spacing.
+    s        = clamp(s, 2.0, 4.0)
+    n        = max(2, int(round(width / s)))
+    s        = width / n          # exact spacing from integer n
     overhang = 0.5 * s
     t_slab   = _round5(clamp(t_slab, 150.0, 250.0))
 
@@ -499,12 +502,11 @@ def _make_bounds(cfg: OptiConfig):
     width = cfg.deck_width_m
 
     def bounds(x: np.ndarray) -> np.ndarray:
-        D    = x[3]
+        D    = x[2]        # was x[3], now shifted because n is removed
         D_lo = span * 1000.0 / 25.0
         D_hi = span * 1000.0 / 15.0
         return np.array([
-            [2,          max(2.0, math.floor(width))],   # n
-            [1.0,        width],                          # s   (m)
+            [2.0,        4.0],                            # s   (m) — primary variable
             [150.0,      250.0],                          # t_slab (mm)
             [D_lo,       D_hi],                           # D   (mm)
             [0.20 * D,   0.40 * D],                       # bf  (mm)
@@ -526,10 +528,9 @@ def initial_guess(cfg: OptiConfig) -> np.ndarray:
     dw  = D - 2.0 * tf
     tw  = _ceiling_plate(max(dw / 200.0, 6.0))
 
-    n       = 4
-    spacing = clamp(width / 4.0, 1.0, width)
-    t_slab  = 150.0
-    return np.array([n, spacing, t_slab, D, bf, tf, tw], dtype=float)
+    s      = clamp(width / 4.0, 2.0, 4.0)   # aim for ~3m spacing as default
+    t_slab = 150.0
+    return np.array([s, t_slab, D, bf, tf, tw], dtype=float)
 
 
 # ------------------------------------------------------------------------------
