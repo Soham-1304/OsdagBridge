@@ -11,7 +11,6 @@ for every combination of:
 
 - span
 - carriageway width
-- median inclusion
 - footpath option
 - skew angle
 - **girder steel grade** (E 350A / E 410A / E 450A)
@@ -53,12 +52,9 @@ from osdagbridge.core.utils.common import (
     KEY_DECK_CONCRETE_GRADE_BASIC,
     KEY_FOOTPATH,
     KEY_GIRDER,
-    KEY_INCLUDE_MEDIAN,
     KEY_SKEW_ANGLE,
     KEY_SPAN,
 )
-
-print("SCRIPT STARTED", flush=True)
 
 # ------------------------------------------------------------------------------
 # Sweep configuration
@@ -67,16 +63,15 @@ print("SCRIPT STARTED", flush=True)
 # Keep the original span sweep unless you want to tighten / expand it later.
 SPAN_START = 20.0
 SPAN_END = 25.0
-SPAN_STEP = 0.5
+SPAN_STEP = 1
 
 # Carriageway sweep. 23.6 is not on a 0.25 grid, so the nearest aligned upper
 # bound is 23.5. Change this to 23.75 if you want to include a value above 23.6.
 CARRIAGEWAY_START = 4.25
-CARRIAGEWAY_END = 10.0
-CARRIAGEWAY_STEP = 0.25
+CARRIAGEWAY_END = 10.25
+CARRIAGEWAY_STEP = 0.75
 
 # Fixed categorical layout inputs.
-MEDIAN_OPTIONS = ["No", "Yes"]
 FOOTPATH_OPTIONS = ["None", "Single Side", "Both Sides"]
 
 # Skew sweep.
@@ -114,7 +109,6 @@ def _int_range(start: int, end: int, step: int) -> list[int]:
 def build_base_input_dict(
     span_m: float,
     carriageway_width_m: float,
-    include_median: str,
     footpath: str,
     skew_angle_deg: float,
     steel_grade: str = "E 350A",
@@ -133,7 +127,6 @@ def build_base_input_dict(
     d[KEY_SPAN] = span_m
     d[KEY_CARRIAGEWAY_WIDTH] = carriageway_width_m
     d[KEY_SKEW_ANGLE] = skew_angle_deg
-    d[KEY_INCLUDE_MEDIAN] = include_median
     d[KEY_FOOTPATH] = footpath
 
     # Set material grades (override the BASIC_INPUT_DICT defaults)
@@ -147,7 +140,6 @@ def build_base_input_dict(
 def collect_for_case(
     span_m: float,
     carriageway_width_m: float,
-    include_median: str,
     footpath: str,
     skew_angle_deg: float,
     steel_grade: str = "E 350A",
@@ -164,7 +156,7 @@ def collect_for_case(
     print(
         "    [inputs] "
         f"span_m={span_m}, carriageway_width_m={carriageway_width_m}, "
-        f"include_median={include_median!r}, footpath={footpath!r}, "
+        f"footpath={footpath!r}, "
         f"skew_angle_deg={skew_angle_deg}, "
         f"steel_grade={steel_grade!r}, concrete_grade={concrete_grade!r}",
         flush=True,
@@ -174,7 +166,6 @@ def collect_for_case(
     base = build_base_input_dict(
         span_m=span_m,
         carriageway_width_m=carriageway_width_m,
-        include_median=include_median,
         footpath=footpath,
         skew_angle_deg=skew_angle_deg,
         steel_grade=steel_grade,
@@ -190,7 +181,6 @@ def collect_for_case(
         r = dict(record)
         r["span_m"] = span_m
         r["carriageway_width_m"] = carriageway_width_m
-        r["include_median"] = include_median
         r["footpath"] = footpath
         r["skew_angle_deg"] = skew_angle_deg
         r["steel_grade"] = steel_grade
@@ -212,17 +202,6 @@ def collect_for_case(
                 v = rec.get(key)
                 return "-" if v is None else f"{v}"
 
-            print(
-                f"      [design #{_g('index')}] "
-                f"round={_g('round')} gen={_g('gen')} | "
-                f"n={_g('n')} spacing={_g('spacing_m')}m t_slab={_g('t_slab_mm')}mm "
-                f"D={_g('D_mm')}mm bf={_g('bf_mm')}mm tf={_g('tf_mm')}mm "
-                f"tw={_g('tw_mm')}mm dw={_g('dw_mm')}mm | "
-                f"steel={_g('steel_kN')}kN deck={_g('deck_kN')}kN total={_g('total_kN')}kN | "
-                f"feasible={_g('feasible')} status={_g('status')} | "
-                f"took {design_dt:.2f}s",
-                flush=True,
-            )
 
     best_records = None
     t_opt = time.time()
@@ -239,11 +218,10 @@ def collect_for_case(
         # No feasible design for this combination — keep the rows captured live.
         print(
             f"    [warn] span={span_m}, width={carriageway_width_m}, "
-            f"median={include_median}, footpath={footpath}, skew={skew_angle_deg}: {exc}",
+            f"footpath={footpath}, skew={skew_angle_deg}: {exc}",
             flush=True,
         )
     opt_dt = time.time() - t_opt
-    print(f"    [inputs] optimise_parallel finished in {opt_dt:.2f}s", flush=True)
 
     # Prefer the optimiser's final records (guaranteed complete); fall back to
     # the live-captured rows.
@@ -258,7 +236,6 @@ def collect_for_case(
 _COLUMNS = [
     "span_m",
     "carriageway_width_m",
-    "include_median",
     "footpath",
     "skew_angle_deg",
     "steel_grade",
@@ -296,11 +273,11 @@ def _save(rows: list[dict]) -> None:
     df.to_pickle(OUTPUT_PKL)
 
 
-def _sweep_cases() -> Iterable[tuple[float, float, str, str, int, str, str]]:
+def _sweep_cases() -> Iterable[tuple[float, float, str, int, str, str]]:
     spans = _frange(SPAN_START, SPAN_END, SPAN_STEP)
     carriageways = _frange(CARRIAGEWAY_START, CARRIAGEWAY_END, CARRIAGEWAY_STEP)
     skews = _int_range(SKEW_START, SKEW_END, SKEW_STEP)
-    return product(spans, carriageways, MEDIAN_OPTIONS, FOOTPATH_OPTIONS, skews,
+    return product(spans, carriageways, FOOTPATH_OPTIONS, skews,
                    STEEL_GRADE_OPTIONS, CONCRETE_GRADE_OPTIONS)
 
 
@@ -312,7 +289,6 @@ def main() -> None:
     total_cases = (
         len(spans)
         * len(carriageways)
-        * len(MEDIAN_OPTIONS)
         * len(FOOTPATH_OPTIONS)
         * len(skews)
         * len(STEEL_GRADE_OPTIONS)
@@ -324,7 +300,6 @@ def main() -> None:
         "Collecting optimisation dataset with sweep grid:\n"
         f"  spans: {spans[0]} .. {spans[-1]} (step {SPAN_STEP})\n"
         f"  carriageway widths: {carriageways[0]} .. {carriageways[-1]} (step {CARRIAGEWAY_STEP})\n"
-        f"  median: {MEDIAN_OPTIONS}\n"
         f"  footpath: {FOOTPATH_OPTIONS}\n"
         f"  skew angle: {skews[0]} .. {skews[-1]} (step {SKEW_STEP})\n"
         f"  girder steel grade: {STEEL_GRADE_OPTIONS}\n"
@@ -338,12 +313,12 @@ def main() -> None:
     all_rows: list[dict] = []
     t0 = time.time()
 
-    for i, (span, width, median, footpath, skew, steel_grade, concrete_grade) in enumerate(_sweep_cases(), start=1):
+    for i, (span, width, footpath, skew, steel_grade, concrete_grade) in enumerate(_sweep_cases(), start=1):
         elapsed = time.time() - t0
         avg = elapsed / (i - 1) if i > 1 else 0.0
         eta = avg * (total_cases - (i - 1))
         print(
-            f"[{i}/{total_cases}] span={span} m, width={width} m, median={median}, "
+            f"[{i}/{total_cases}] span={span} m, width={width} m, "
             f"footpath={footpath}, skew={skew} deg, "
             f"steel={steel_grade}, concrete={concrete_grade} "
             f"(elapsed {elapsed / 60:.1f} min, avg {avg:.1f}s/case, ETA {eta / 3600:.1f} h) ...",
@@ -354,7 +329,6 @@ def main() -> None:
         case_rows = collect_for_case(
             span_m=span,
             carriageway_width_m=width,
-            include_median=median,
             footpath=footpath,
             skew_angle_deg=skew,
             steel_grade=steel_grade,
